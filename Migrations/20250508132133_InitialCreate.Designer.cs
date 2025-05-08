@@ -10,7 +10,7 @@ using SocialNetworkAnalyser.Data;
 namespace SocialNetworkAnalyser.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250508122150_InitialCreate")]
+    [Migration("20250508132133_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
