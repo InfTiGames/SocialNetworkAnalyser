@@ -1,0 +1,37 @@
+﻿@model SocialNetworkAnalyser.Models.DatasetImportViewModel
+@{
+    ViewData["Title"] = "Import Dataset";
+}
+
+<div class="container mt-5 text-center">
+    <h2 class="mb-4">Import New Dataset</h2>
+
+    <div class="card mx-auto shadow-sm p-4" style="max-width: 500px;">
+        @if (ViewData.ModelState.Values.Any(v => v.Errors.Any()))
+        {
+            <div class="alert alert-warning text-start">
+                <div asp-validation-summary="All"></div>
+            </div>
+        }
+
+        <form asp-action="Import" method="post" enctype="multipart/form-data">
+            <div class="mb-3 text-start">
+                <label asp-for="DatasetName" class="form-label fw-bold"></label>
+                <input asp-for="DatasetName" class="form-control" />
+                <span asp-validation-for="DatasetName" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3 text-start">
+                <label asp-for="UploadFile" class="form-label fw-bold"></label>
+                <input asp-for="UploadFile" type="file" class="form-control" />
+                <span asp-validation-for="UploadFile" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-lg btn-primary shadow-sm w-100">Import</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

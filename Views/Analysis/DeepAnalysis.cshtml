@@ -1,0 +1,129 @@
+﻿@model SocialNetworkAnalyser.Models.AnalysisViewModel
+@{
+    ViewData["Title"] = "Deep Analysis";
+}
+
+<div class="container mt-5 text-center">
+    <h2 class="mb-3">Deep Analysis for Dataset: @Model.Dataset.Name</h2>
+    <p class="text-muted">Import Date: @Model.Dataset.ImportDate.ToString("g")</p>
+
+    <div class="card mx-auto shadow-sm" style="max-width: 500px;">
+        <div class="card-header bg-primary text-white">
+            Basic Statistics
+        </div>
+        <div class="card-body">
+            <p class="fw-bold">Total Users: <span class="text-success">@Model.AnalysisData.TotalUsers</span></p>
+            <p class="fw-bold">Average Friends per User: <span class="text-success">@Model.AnalysisData.AverageFriendsPerUser.ToString("F2")</span></p>
+        </div>
+    </div>
+
+    <hr class="my-4" />
+
+    <h3 class="mb-3">Additional Statistics</h3>
+
+    <div class="card mx-auto shadow-sm" style="max-width: 700px;">
+        <div class="card-header bg-secondary text-white">
+            Average Reachable Users by Distance
+        </div>
+        <div class="card-body">
+            @if (Model.AnalysisData.AverageCountsPerDistance.Any())
+            {
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Distance</th>
+                            <th>Average Count</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var kv in Model.AnalysisData.AverageCountsPerDistance)
+                        {
+                            <tr>
+                                <td>@kv.Key</td>
+                                <td>@kv.Value.ToString("F2")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p class="text-muted">No data available.</p>
+            }
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <h4>Average Maximal Clique Size</h4>
+        <p class="fw-bold text-success">@Model.AnalysisData.AverageMaximalCliqueSize.ToString("F2")</p>
+    </div>
+
+    <hr class="my-4" />
+
+    <h3 class="mb-3">Graph Visualization</h3>
+    <button id="showGraphButton" class="btn btn-lg btn-primary shadow-sm" onclick="initGraph()">Show Graph</button>
+    <div id="cy" class="mx-auto" style="width:90%; height:600px; border:1px solid #ccc; margin-top:20px;"></div>
+
+    <script src="https://unpkg.com/cytoscape@3.20.0/dist/cytoscape.min.js"></script>
+    <script>
+        function initGraph() {
+            const graphData = JSON.parse('@Html.Raw(ViewBag.GraphData)');
+            const elements = graphData.nodes && graphData.edges ? graphData.nodes.concat(graphData.edges) : graphData;
+            const cy = cytoscape({
+                container: document.getElementById('cy'),
+                elements: elements,
+                layout: { name: 'random' },
+                style: [
+                    {
+                        selector: 'node',
+                        style: {
+                            'background-color': 'mapData(degree, 0, 20, #00FF00, #FF0000)',
+                            'label': 'data(label)',
+                            'width': 30,
+                            'height': 30,
+                            'text-valign': 'center',
+                            'text-halign': 'center',
+                            'color': '#fff',
+                            'font-size': '10px'
+                        }
+                    },
+                    {
+                        selector: 'edge',
+                        style: {
+                            'width': 2,
+                            'line-color': '#ccc',
+                            'curve-style': 'bezier',
+                            'target-arrow-shape': 'none'
+                        }
+                    }
+                ]
+            });
+
+            setTimeout(() => {
+                cy.nodes().forEach(node => node.data('degree', node.degree()));
+                const heavyNodes = cy.nodes().filter(node => node.data('degree') >= 10);
+                if (heavyNodes.length) {
+                    const rect = cy.container().getBoundingClientRect();
+                    const centerX = rect.width / 2, centerY = rect.height / 2;
+                    const radius = Math.min(centerX, centerY) * 0.9, alpha = 0.7;
+                    heavyNodes.forEach((node, i) => {
+                        const angle = (2 * Math.PI * i) / heavyNodes.length;
+                        const targetX = centerX + radius * Math.cos(angle);
+                        const targetY = centerY + radius * Math.sin(angle);
+                        const curPos = node.position();
+                        node.position({
+                            x: curPos.x + alpha * (targetX - curPos.x),
+                            y: curPos.y + alpha * (targetY - curPos.y)
+                        });
+                    });
+                }
+                cy.fit();
+                document.getElementById("showGraphButton").style.display = "none";
+            }, 500);
+        }
+    </script>
+
+    <div class="mt-4">
+        <a asp-action="BasicAnalysis" asp-route-id="@Model.Dataset.Id" class="btn btn-lg btn-secondary shadow-sm">Back to Basic Analysis</a>
+    </div>
+</div>

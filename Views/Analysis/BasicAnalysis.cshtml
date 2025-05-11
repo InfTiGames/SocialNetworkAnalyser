@@ -1,0 +1,25 @@
+﻿@model SocialNetworkAnalyser.Models.AnalysisViewModel
+@{
+    ViewData["Title"] = "Basic Analysis";
+}
+
+<div class="container mt-5 text-center">
+    <h2 class="mb-3">Basic Analysis for Dataset: @Model.Dataset.Name</h2>
+    <p class="text-muted">Import Date: @Model.Dataset.ImportDate.ToString("g")</p>
+
+    <div class="card mx-auto shadow-sm" style="max-width: 500px;">
+        <div class="card-header bg-primary text-white">
+            Basic Statistics
+        </div>
+        <div class="card-body">
+            <p class="fw-bold">Total Users: <span class="text-success">@Model.AnalysisData.TotalUsers</span></p>
+            <p class="fw-bold">Average Friends per User: <span class="text-success">@Model.AnalysisData.AverageFriendsPerUser.ToString("F2")</span></p>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a asp-action="DeepAnalysis" asp-route-id="@Model.Dataset.Id" class="btn btn-lg btn-primary shadow-sm">
+            Deep Analysis
+        </a>
+    </div>
+</div>

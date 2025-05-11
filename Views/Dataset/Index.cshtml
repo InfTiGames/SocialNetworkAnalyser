@@ -1,0 +1,96 @@
+﻿@model IEnumerable<SocialNetworkAnalyser.Models.DatasetModel>
+@{
+    ViewData["Title"] = "Imported Datasets";
+}
+
+<div class="container mt-5 text-center">
+    <h2 class="mb-4">Imported Datasets</h2>
+
+    <div class="mb-4">
+        <a asp-action="Import" class="btn btn-lg btn-primary shadow-sm">Import New Dataset</a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info mx-auto" style="max-width: 500px;">
+            <p class="mb-0">No datasets were imported yet.</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive mx-auto" style="max-width: 800px;">
+            <table class="table table-striped table-bordered shadow-sm" id="datasetTable">
+                <thead class="table-dark">
+                    <tr>
+                        <th id="nameHeader" style="cursor:pointer;">Dataset Name ⬍</th>
+                        <th id="dateHeader" style="cursor:pointer;">Import Date ⬍</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var dataset in Model)
+                    {
+                        <tr>
+                            <td>@dataset.Name</td>
+                            <td data-date="@dataset.ImportDate.Ticks">@dataset.ImportDate.ToString("g")</td>
+                            <td>
+                                <a asp-controller="Analysis" asp-action="BasicAnalysis" asp-route-id="@dataset.Id"
+                                   class="btn btn-sm btn-info shadow-sm">View Analysis</a>
+
+                                <form asp-action="Delete" asp-route-id="@dataset.Id" method="post"
+                                      class="d-inline" onsubmit="return confirm('Are you sure you want to delete this dataset?');">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-danger shadow-sm">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        let nameSortAsc = true;
+        let dateSortAsc = true;
+
+        document.getElementById('nameHeader').addEventListener('click', () => {
+            sortTable(0, nameSortAsc);
+            nameSortAsc = !nameSortAsc;
+        });
+
+        document.getElementById('dateHeader').addEventListener('click', () => {
+            sortTable(1, dateSortAsc);
+            dateSortAsc = !dateSortAsc;
+        });
+
+        function sortTable(colIndex, ascending) {
+            const table = document.getElementById('datasetTable');
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+
+            rows.sort((a, b) => {
+                if (colIndex === 0) {
+                    return ascending
+                        ? a.cells[colIndex].innerText.localeCompare(b.cells[colIndex].innerText)
+                        : b.cells[colIndex].innerText.localeCompare(a.cells[colIndex].innerText);
+                } else if (colIndex === 1) {
+                    const aDate = parseInt(a.cells[colIndex].getAttribute('data-date'));
+                    const bDate = parseInt(b.cells[colIndex].getAttribute('data-date'));
+                    return ascending ? aDate - bDate : bDate - aDate;
+                }
+                return 0;
+            });
+
+            tbody.innerHTML = "";
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            sortTable(1, false);
+            dateSortAsc = true;
+        });
+    </script>
+}
