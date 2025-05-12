@@ -59,6 +59,11 @@ body {
 }
 
 /* Imported Datasets View Styles */
+
+.card--import {
+    max-width: 500px;
+}
+
 .alert--limit {
     max-width: 500px;
 }

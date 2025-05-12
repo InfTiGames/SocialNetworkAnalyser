@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocialNetworkAnalyser", "So
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocialNetworkAnalyser.Tests", "..\SocialNetworkAnalyser.Tests\SocialNetworkAnalyser.Tests.csproj", "{7A01F096-61E2-49AC-BC43-535A0B568B88}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SNA", "SNA", "{36D591C7-65C7-A0D1-1CBC-10CDE441BDC8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,6 +26,10 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{BA2626E8-35DE-4358-96AF-3EC1D0FFE307} = {36D591C7-65C7-A0D1-1CBC-10CDE441BDC8}
+		{7A01F096-61E2-49AC-BC43-535A0B568B88} = {36D591C7-65C7-A0D1-1CBC-10CDE441BDC8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {475DAFE3-9B32-4463-8E56-F915820961E9}
