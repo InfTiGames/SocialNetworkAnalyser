@@ -6,7 +6,7 @@
 <div class="container mt-5 text-center">
     <h2 class="mb-4">Import New Dataset</h2>
 
-    <div class="card mx-auto shadow-sm p-4" style="max-width: 500px;">
+    <div class="card mx-auto shadow-sm p-4 card--import">
         @if (ViewData.ModelState.Values.Any(v => v.Errors.Any()))
         {
             <div class="alert alert-warning text-start">

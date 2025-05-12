@@ -12,18 +12,18 @@
 
     @if (!Model.Any())
     {
-        <div class="alert alert-info mx-auto" style="max-width: 500px;">
+        <div class="alert alert-info mx-auto alert--limit">
             <p class="mb-0">No datasets were imported yet.</p>
         </div>
     }
     else
     {
-        <div class="table-responsive mx-auto" style="max-width: 800px;">
+        <div class="table-responsive mx-auto table-responsive--limit">
             <table class="table table-striped table-bordered shadow-sm" id="datasetTable">
                 <thead class="table-dark">
                     <tr>
-                        <th id="nameHeader" style="cursor:pointer;">Dataset Name ⬍</th>
-                        <th id="dateHeader" style="cursor:pointer;">Import Date ⬍</th>
+                        <th id="nameHeader" class="clickable-header">Dataset Name ⬍</th>
+                        <th id="dateHeader" class="clickable-header">Import Date ⬍</th>
                         <th>Actions</th>
                     </tr>
                 </thead>

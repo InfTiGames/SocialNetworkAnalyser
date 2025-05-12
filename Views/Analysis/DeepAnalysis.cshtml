@@ -7,7 +7,7 @@
     <h2 class="mb-3">Deep Analysis for Dataset: @Model.Dataset.Name</h2>
     <p class="text-muted">Import Date: @Model.Dataset.ImportDate.ToString("g")</p>
 
-    <div class="card mx-auto shadow-sm" style="max-width: 500px;">
+    <div class="card mx-auto shadow-sm card--small">
         <div class="card-header bg-primary text-white">
             Basic Statistics
         </div>
@@ -21,7 +21,7 @@
 
     <h3 class="mb-3">Additional Statistics</h3>
 
-    <div class="card mx-auto shadow-sm" style="max-width: 700px;">
+    <div class="card mx-auto shadow-sm card--wide">
         <div class="card-header bg-secondary text-white">
             Average Reachable Users by Distance
         </div>
@@ -62,68 +62,115 @@
 
     <h3 class="mb-3">Graph Visualization</h3>
     <button id="showGraphButton" class="btn btn-lg btn-primary shadow-sm" onclick="initGraph()">Show Graph</button>
-    <div id="cy" class="mx-auto" style="width:90%; height:600px; border:1px solid #ccc; margin-top:20px;"></div>
+    <div id="cy" class="mx-auto"></div>
 
     <script src="https://unpkg.com/cytoscape@3.20.0/dist/cytoscape.min.js"></script>
     <script>
-        function initGraph() {
-            const graphData = JSON.parse('@Html.Raw(ViewBag.GraphData)');
-            const elements = graphData.nodes && graphData.edges ? graphData.nodes.concat(graphData.edges) : graphData;
-            const cy = cytoscape({
-                container: document.getElementById('cy'),
-                elements: elements,
-                layout: { name: 'random' },
-                style: [
-                    {
-                        selector: 'node',
-                        style: {
-                            'background-color': 'mapData(degree, 0, 20, #00FF00, #FF0000)',
-                            'label': 'data(label)',
-                            'width': 30,
-                            'height': 30,
-                            'text-valign': 'center',
-                            'text-halign': 'center',
-                            'color': '#fff',
-                            'font-size': '10px'
-                        }
-                    },
-                    {
-                        selector: 'edge',
-                        style: {
-                            'width': 2,
-                            'line-color': '#ccc',
-                            'curve-style': 'bezier',
-                            'target-arrow-shape': 'none'
-                        }
-                    }
-                ]
+        function initGraph() {        
+          const graphData = JSON.parse('@Html.Raw(ViewBag.GraphData)');
+          const elements = graphData.nodes && graphData.edges
+            ? graphData.nodes.concat(graphData.edges)
+            : graphData;
+
+          let nodeCount = 0;
+          if (graphData.nodes && Array.isArray(graphData.nodes)) {
+            nodeCount = graphData.nodes.length;
+          } else {
+            nodeCount = elements.filter(el => el.group === 'nodes').length;
+          }
+
+          let sideDimension = Math.ceil(Math.sqrt(nodeCount)) * 100 + 100;
+
+          const cy = cytoscape({
+            container: document.getElementById('cy'),
+            elements: elements,
+            layout: {
+              name: 'random',
+              animate: false,
+              padding: 30,            
+              boundingBox: { x1: 0, y1: 0, w: sideDimension, h: sideDimension }
+            },
+            style: [
+              {
+                selector: 'node',
+                style: {                
+                  'background-color': 'mapData(degree, 0, 10, #AEDFF7, #837DFF)',
+                  'label': 'data(label)',
+                  'width': 'mapData(degree, 0, 10, 10, 30)',
+                  'height': 'mapData(degree, 0, 10, 10, 30)',
+                  'text-valign': 'center',
+                  'text-halign': 'center',
+                  'color': '#333',
+                  'font-size': '10px'
+                }
+              },
+              {
+                selector: 'node[degree >= 10]',
+                style: {
+                  'width': 30,
+                  'height': 30,
+                  'background-color': '#837DFF'
+                }
+              },              
+              {
+                selector: 'edge',
+                style: {
+                  'width': 1,              
+                  'line-color': 'rgba(170, 170, 170, 0.5)',
+                  'target-arrow-shape': 'none'
+                }
+              },
+              {
+                selector: 'edge[overloaded = "true"]',
+                style: {               
+                  'line-color': 'rgba(70,70,70,0.7)',
+                  'target-arrow-shape': 'none'
+                }
+              },
+              {
+                selector: 'edge[overloaded = "false"]',
+                style: {              
+                  'line-color': 'rgba(170, 170, 170, 0.5)',
+                  'target-arrow-shape': 'none'
+                }
+              }
+            ],
+            userPanningEnabled: true,
+            zoomingEnabled: true
+          });
+
+          setTimeout(() => {
+            cy.nodes().forEach(node => {
+              node.data('degree', node.degree());
+            });
+            cy.edges().forEach(edge => {
+              const srcDegree = edge.source().data('degree');
+              edge.data('overloaded', srcDegree >= 10 ? "true" : "false");
             });
 
-            setTimeout(() => {
-                cy.nodes().forEach(node => node.data('degree', node.degree()));
-                const heavyNodes = cy.nodes().filter(node => node.data('degree') >= 10);
-                if (heavyNodes.length) {
-                    const rect = cy.container().getBoundingClientRect();
-                    const centerX = rect.width / 2, centerY = rect.height / 2;
-                    const radius = Math.min(centerX, centerY) * 0.9, alpha = 0.7;
-                    heavyNodes.forEach((node, i) => {
-                        const angle = (2 * Math.PI * i) / heavyNodes.length;
-                        const targetX = centerX + radius * Math.cos(angle);
-                        const targetY = centerY + radius * Math.sin(angle);
-                        const curPos = node.position();
-                        node.position({
-                            x: curPos.x + alpha * (targetX - curPos.x),
-                            y: curPos.y + alpha * (targetY - curPos.y)
-                        });
-                    });
-                }
-                cy.fit();
-                document.getElementById("showGraphButton").style.display = "none";
-            }, 500);
+            let center = { x: sideDimension / 2, y: sideDimension / 2 };
+            cy.nodes().forEach(node => {
+              let pos = node.position();
+              let dx = pos.x - center.x, dy = pos.y - center.y;
+              let r = Math.sqrt(dx * dx + dy * dy);
+              let offset = node.data('degree') * 5;
+              if (r === 0) {
+                dx = 1; dy = 1;
+                r = Math.sqrt(2);
+              }
+              let newR = r + offset;
+              let newX = center.x + (dx / r) * newR;
+              let newY = center.y + (dy / r) * newR;
+              node.position({ x: newX, y: newY });
+            });
+            document.getElementById("showGraphButton").style.display = "none";
+          }, 500);
         }
     </script>
 
     <div class="mt-4">
-        <a asp-action="BasicAnalysis" asp-route-id="@Model.Dataset.Id" class="btn btn-lg btn-secondary shadow-sm">Back to Basic Analysis</a>
+        <a asp-action="BasicAnalysis" asp-route-id="@Model.Dataset.Id" class="btn btn-lg btn-secondary shadow-sm">
+            Back to Basic Analysis
+        </a>
     </div>
 </div>

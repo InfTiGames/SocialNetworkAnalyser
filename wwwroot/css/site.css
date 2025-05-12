@@ -1,31 +1,72 @@
 html {
-  font-size: 14px;
+    font-size: 14px;
+    position: relative;
+    min-height: 100%;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+    html {
+        font-size: 16px;
+    }
 }
 
 body {
-  margin-bottom: 60px;
+    margin-bottom: 60px;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+.form-floating > .form-control-plaintext::placeholder,
+.form-floating > .form-control::placeholder {
+    color: var(--bs-secondary-color);
+    text-align: end;
+}
+
+.form-floating > .form-control-plaintext:focus::placeholder,
+.form-floating > .form-control:focus::placeholder {
+    text-align: start;
+}
+
+/* Basic Analysis View Styles */
+.card--small {
+    max-width: 500px;
+}
+
+/* Deep Analysis View Styles */
+#cy {
+    background-color: #f8f8f8;
+    width: 100%; /* Контейнер занимает всю ширину родителя */
+    height: 750px;
+    border: 2px solid #ccc;
+    margin: 20px auto; /* Центрирование контейнера */
+}
+
+    #cy div {
+        width: 0 !important;
+        overflow: unset !important;
+    }
+
+/* Utility Class to Center Elements */
+.mx-auto {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Imported Datasets View Styles */
+.alert--limit {
+    max-width: 500px;
+}
+
+.table-responsive--limit {
+    max-width: 800px;
+}
+
+.clickable-header {
+    cursor: pointer;
 }
